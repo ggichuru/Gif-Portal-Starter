@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import twitterLogo from "../assets/twitter-logo.svg";
 import { checkIfWalletConnected } from "../utils/checkIfWalletConnected";
+import { TEST_GIFS } from "../utils/testGifs";
+// import { GifsContainer } from "./Gifs";
 // import { connectWallet } from "../utils/connectWallet";
 
 // Constants
@@ -10,6 +12,8 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 export const Home = () => {
   /** STATE */
   const [walletAddress, setWalletAddress] = useState(null);
+  const [inputValue, setInputValue] = useState("");
+  const [gifList, setGifList] = useState([]);
 
   const connectWallet = async () => {
     if ("phantom" in window) {
@@ -25,6 +29,8 @@ export const Home = () => {
          * @dev set the user public key to the state
          */
         setWalletAddress(pubkey);
+      } else {
+        window.open("https://phantom.app/", "_blank");
       }
     }
   };
@@ -66,6 +72,52 @@ export const Home = () => {
     );
   };
 
+  const GifsContainer = () => {
+    const onInputChange = (e) => {
+      const { value } = e.target;
+
+      setInputValue(value);
+    };
+
+    const sendGif = async () => {
+      if (inputValue.length > 0) {
+        console.log("GIF link: ", inputValue);
+        setGifList([...gifList, inputValue]);
+        setInputValue("");
+      } else {
+        console.log("No GIF link provided. !!! EMPTY LINK !!!");
+      }
+    };
+
+    return (
+      <div className="connected-container">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendGif();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Enter Gif Link"
+            value={inputValue}
+            onChange={onInputChange}
+          />
+          <button type="submit" className="cta-button submit-gif-button">
+            Submit
+          </button>
+        </form>
+        <div className="gif-grid">
+          {gifList.map((gif) => (
+            <div className="gif-item" key={gif}>
+              <img src={gif} alt={gif} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   /**
    * @dev When the home component first mounts, let check i a phantom wallet is connected.
    */
@@ -80,15 +132,26 @@ export const Home = () => {
     return () => window.removeEventListener("load", onload);
   }, []);
 
+  useEffect(() => {
+    if (walletAddress) {
+      console.log("FETCHING GIFS");
+
+      //TODO: [WAK-1] Call Solana program here
+
+      //set state
+      setGifList(TEST_GIFS);
+    }
+  }, [walletAddress]);
   return (
     <div className="App">
       <div className={walletAddress ? "authed-container" : "container"}>
         <div className="header-container">
-          <p className="header">🖼 GIF NYUMBANI</p>
+          <p className="header">🖼 ASTA NYUMBANI</p>
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
           </p>
-          {!walletAddress ? walletConnectButton() : walletDiconnectButton()}
+          {/* TODO: [WAK-2] Add disconnect wallet */}
+          {!walletAddress ? walletConnectButton() : GifsContainer()}
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />

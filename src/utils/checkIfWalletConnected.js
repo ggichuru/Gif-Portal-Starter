@@ -7,6 +7,7 @@ export const checkIfWalletConnected = async () => {
         console.log("Phantom Wallet detected");
         return provider;
       } else {
+        console.log("Phantom Wallet not detected");
         alert("solana Object Not Found, get a phantom Wallet");
       }
       //   window.open("https://phantom.app/", "_blank");
